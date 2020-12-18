@@ -127,29 +127,61 @@ static void *treat(void * arg)
 void raspunde(void *arg)
 {
         int nr, i=0;
-	struct thData tdL; 
+        char data[50];
+	struct thData tdL;
 	tdL= *((struct thData*)arg);
-	if (read (tdL.cl, &nr,sizeof(int)) <= 0)
+  /*Validam comanda primita de la client*/
+  /* Este login/register/quit? */
+  while (1) 
+  {
+    /*   Citim comanda   */
+    fflush(stdin);
+    if (read (tdL.cl, &data,sizeof(data)) <= 0)
 			{
 			  printf("[Thread %d]\n",tdL.idThread);
 			  perror ("Eroare la read() de la client.\n");
 			
 			}
 	
-	printf ("[Thread %d]Mesajul a fost receptionat...%d\n",tdL.idThread, nr);
+	  printf ("[Thread %d]Mesajul a fost receptionat...%s\n",tdL.idThread, data);
+    
+    /* Este o comanda valida? */
+      if (strcmp(data,"login\n")==0 || strcmp(data,"register\n")==0 || strcmp(data,"quit\n")==0)
+        {
+          printf ("[Thread %d] Comanda valida: %s \n",tdL.idThread,data);
+          break;
+        }else{
+          printf ("[Thread %d] Comanda nevalida! \n",tdL.idThread);
+          int errorCode = 1;
+          if (write(tdL.cl,&errorCode,sizeof(errorCode))<=0)
+          {
+            printf("[Thread %d] ",tdL.idThread);
+		        perror ("[Thread]Eroare la write() catre client.\n");
+          }else{
+            printf ("[Thread %d]Mesajul a fost trasmis cu succes.\n",tdL.idThread);
+          }
+          
+        }
+  }
+
+  
+
+
 		      
 		      /*pregatim mesajul de raspuns */
-		      nr++;      
+		      
+  /*        nr++;      
 	printf("[Thread %d]Trimitem mesajul inapoi...%d\n",tdL.idThread, nr);
-		      
-		      
+	*/
+	      
 		      /* returnam mesajul clientului */
-	 if (write (tdL.cl, &nr, sizeof(int)) <= 0)
+	/*
+   if (write (tdL.cl, &nr, sizeof(int)) <= 0)
 		{
 		 printf("[Thread %d] ",tdL.idThread);
 		 perror ("[Thread]Eroare la write() catre client.\n");
 		}
 	else
 		printf ("[Thread %d]Mesajul a fost trasmis cu succes.\n",tdL.idThread);	
-
+  */
 }

@@ -25,7 +25,8 @@ int main (int argc, char *argv[])
   struct sockaddr_in server;	// structura folosita pentru conectare 
   		// mesajul trimis
   int nr=0;
-  char buf[10];
+  char buf[50];
+  char comanda[50]="";
 
   /* exista toate argumentele in linia de comanda? */
   if (argc != 3)
@@ -58,33 +59,43 @@ int main (int argc, char *argv[])
       perror ("[client]Eroare la connect().\n");
       return errno;
     }
-
+  int isValid = 0;
   /* citirea mesajului */
-  printf ("[client]Introduceti un numar: ");
+  printf ("[client]Introduceti o comanda: ");
   fflush (stdout);
-  read (0, buf, sizeof(buf));
-  nr=atoi(buf);
+  fflush(stdin);
+  
+  read (0, comanda, sizeof(comanda));
   //scanf("%d",&nr);
   
-  printf("[client] Am citit %d\n",nr);
+  printf("[client] Am citit %s\n",comanda);
 
   /* trimiterea mesajului la server */
-  if (write (sd,&nr,sizeof(int)) <= 0)
+  if (write (sd,&comanda,sizeof(comanda)) <= 0)
     {
       perror ("[client]Eroare la write() spre server.\n");
       return errno;
     }
+  if (read (sd, &isValid,sizeof(isValid)) < 0)
+    {
+      perror ("[client]Eroare la read() de la server.\n");
+      return errno;
+    }
+  printf ("%d\n",isValid);
+  
 
   /* citirea raspunsului dat de server 
      (apel blocant pina cind serverul raspunde) */
+     /*
   if (read (sd, &nr,sizeof(int)) < 0)
     {
       perror ("[client]Eroare la read() de la server.\n");
       return errno;
     }
   /* afisam mesajul primit */
+  /* 
   printf ("[client]Mesajul primit este: %d\n", nr);
-
+  */
   /* inchidem conexiunea, am terminat */
   close (sd);
 }
