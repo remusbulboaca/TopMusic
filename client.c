@@ -19,31 +19,31 @@ extern int errno;
 /* portul de conectare la server*/
 int port;
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  int sd;			// descriptorul de socket
-  struct sockaddr_in server;	// structura folosita pentru conectare 
-  		// mesajul trimis
-  int nr=0;
+  int sd;                    // descriptorul de socket
+  struct sockaddr_in server; // structura folosita pentru conectare
+      // mesajul trimis
+  int nr = 0;
   char buf[50];
-  char comanda[50]="";
+  char comanda[50] = "";
 
   /* exista toate argumentele in linia de comanda? */
   if (argc != 3)
-    {
-      printf ("Sintaxa: %s <adresa_server> <port>\n", argv[0]);
-      return -1;
-    }
+  {
+    printf("Sintaxa: %s <adresa_server> <port>\n", argv[0]);
+    return -1;
+  }
 
   /* stabilim portul */
-  port = atoi (argv[2]);
+  port = atoi(argv[2]);
 
   /* cream socketul */
-  if ((sd = socket (AF_INET, SOCK_STREAM, 0)) == -1)
-    {
-      perror ("Eroare la socket().\n");
-      return errno;
-    }
+  if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+  {
+    perror("Eroare la socket().\n");
+    return errno;
+  }
 
   /* umplem structura folosita pentru realizarea conexiunii cu serverul */
   /* familia socket-ului */
@@ -51,42 +51,48 @@ int main (int argc, char *argv[])
   /* adresa IP a serverului */
   server.sin_addr.s_addr = inet_addr(argv[1]);
   /* portul de conectare */
-  server.sin_port = htons (port);
-  
-  /* ne conectam la server */
-  if (connect (sd, (struct sockaddr *) &server,sizeof (struct sockaddr)) == -1)
-    {
-      perror ("[client]Eroare la connect().\n");
-      return errno;
-    }
-  int isValid = 0;
-  /* citirea mesajului */
-  printf ("[client]Introduceti o comanda: ");
-  fflush (stdout);
-  fflush(stdin);
-  
-  read (0, comanda, sizeof(comanda));
-  //scanf("%d",&nr);
-  
-  printf("[client] Am citit %s\n",comanda);
+  server.sin_port = htons(port);
 
-  /* trimiterea mesajului la server */
-  if (write (sd,&comanda,sizeof(comanda)) <= 0)
+  /* ne conectam la server */
+  if (connect(sd, (struct sockaddr *)&server, sizeof(struct sockaddr)) == -1)
+  {
+    perror("[client]Eroare la connect().\n");
+    return errno;
+  }
+  int isValid = 1;
+
+  while (isValid == 1)
+  {
+    /* citirea mesajului */
+    printf("[client]Introduceti o comanda: ");
+    fflush(stdout);
+    fflush(stdin);
+
+    read(0, comanda, sizeof(comanda));
+    //scanf("%d",&nr);
+
+    printf("[client] Am citit %s\n", comanda);
+
+    /* trimiterea mesajului la server */
+    if (write(sd, &comanda, sizeof(comanda)) <= 0)
     {
-      perror ("[client]Eroare la write() spre server.\n");
+      perror("[client]Eroare la write() spre server.\n");
       return errno;
     }
-  if (read (sd, &isValid,sizeof(isValid)) < 0)
+    if (read(sd, &isValid, sizeof(isValid)) < 0)
     {
-      perror ("[client]Eroare la read() de la server.\n");
+      perror("[client]Eroare la read() de la server.\n");
       return errno;
     }
-  printf ("%d\n",isValid);
-  
+    else
+    {
+      printf("%d\n", isValid);
+    }
+  }
 
   /* citirea raspunsului dat de server 
      (apel blocant pina cind serverul raspunde) */
-     /*
+  /*
   if (read (sd, &nr,sizeof(int)) < 0)
     {
       perror ("[client]Eroare la read() de la server.\n");
@@ -97,5 +103,5 @@ int main (int argc, char *argv[])
   printf ("[client]Mesajul primit este: %d\n", nr);
   */
   /* inchidem conexiunea, am terminat */
-  close (sd);
+  close(sd);
 }

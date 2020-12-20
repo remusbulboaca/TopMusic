@@ -144,15 +144,23 @@ void raspunde(void *arg)
 			}
 	
 	  printf ("[Thread %d]Mesajul a fost receptionat...%s\n",tdL.idThread, data);
-    
+    int errorCode;
     /* Este o comanda valida? */
       if (strcmp(data,"login\n")==0 || strcmp(data,"register\n")==0 || strcmp(data,"quit\n")==0)
         {
           printf ("[Thread %d] Comanda valida: %s \n",tdL.idThread,data);
+          /* Trimitem un raspuns --> client validand comanda */
+          errorCode = 0;
+          if(write(tdL.cl,&errorCode,sizeof(errorCode))<=0){
+            printf("[Thread %d] ",tdL.idThread);
+		        perror ("[Thread]Eroare la write() catre client.\n");
+          }else{
+            printf ("[Thread %d]Am validat comanda introdusa de catre client!.\n",tdL.idThread);
+          }
           break;
         }else{
           printf ("[Thread %d] Comanda nevalida! \n",tdL.idThread);
-          int errorCode = 1;
+          errorCode = 1;
           if (write(tdL.cl,&errorCode,sizeof(errorCode))<=0)
           {
             printf("[Thread %d] ",tdL.idThread);
