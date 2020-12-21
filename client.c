@@ -86,7 +86,11 @@ int main(int argc, char *argv[])
     }
     else
     {
-      printf("%d\n", isValid);
+      if(isValid == 1){
+        printf("Ai introdus o comanda gresita!\n");
+        printf("Incearca din nou!\n");
+        printf("Comenzi disponibile: login / register / quit.\n");
+      }
     }
   }
 
