@@ -74,11 +74,13 @@ int main(int argc, char *argv[])
     printf("[client] Am citit %s\n", comanda);
 
     /* trimiterea mesajului la server */
+    /*TRIMITEM COMANDA CITITA INITIAL LA SERVER*/
     if (write(sd, &comanda, sizeof(comanda)) <= 0)
     {
       perror("[client]Eroare la write() spre server.\n");
       return errno;
     }
+    /*Asteapm raspunsul si il validam*/
     if (read(sd, &isValid, sizeof(isValid)) < 0)
     {
       perror("[client]Eroare la read() de la server.\n");
@@ -86,10 +88,30 @@ int main(int argc, char *argv[])
     }
     else
     {
+      /* Verificam raspunsul dat de server:
+         isValid = 0 => Comanda e ok.
+         isValid = 1 => Comanda nu e ok. => Introdu iar!
+      */
       if(isValid == 1){
         printf("Ai introdus o comanda gresita!\n");
         printf("Incearca din nou!\n");
         printf("Comenzi disponibile: login / register / quit.\n");
+      }
+      /*Comanda e ok. Afisam optiunile in functie de comanda selectata.*/
+      if(isValid == 0){
+        if(strcmp(comanda, "login\n")==0){
+          system("clear");
+          printf("Ai selectat login! \n");
+          printf("Introdu datele!\n");
+        }
+        if(strcmp(comanda, "register\n")==0){
+          system("clear");
+          printf("REGISTER\n");
+        }
+        if(strcmp(comanda, "quit\n")==0){
+          system("clear");
+          printf("QUIT\n");
+        }
       }
     }
   }

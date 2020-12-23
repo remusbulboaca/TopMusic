@@ -181,24 +181,8 @@ void raspunde(void *arg)
     printf("Failed to open DB! \n");
   }
   if(strcmp(data,"login\n")==0){
-    char *querry = "SELECT * FROM users where id=?";
-    rc = sqlite3_prepare_v2(db,querry,-1,&stmt,0);
-    if(rc==SQLITE_OK){
-      sqlite3_bind_int(stmt,1,1);
-    }else{
-      fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
-    }
-  int step = sqlite3_step(stmt);
     
-    if (step == SQLITE_ROW) {
-        
-        printf("%s: ", sqlite3_column_text(stmt, 0));
-        printf("%s\n", sqlite3_column_text(stmt, 1));
-        
-    } 
-
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
+    
 
   }
   
