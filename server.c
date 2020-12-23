@@ -176,42 +176,32 @@ void raspunde(void *arg)
         }
   }
 
-  sqlite3_open("TopMusic.db",&db);
+  int rc = sqlite3_open("TopMusic.db",&db);
   if(db == NULL){
     printf("Failed to open DB! \n");
   }
+  if(strcmp(data,"login\n")==0){
+    char *querry = "SELECT * FROM users where id=?";
+    rc = sqlite3_prepare_v2(db,querry,-1,&stmt,0);
+    if(rc==SQLITE_OK){
+      sqlite3_bind_int(stmt,1,1);
+    }else{
+      fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+  int step = sqlite3_step(stmt);
+    
+    if (step == SQLITE_ROW) {
+        
+        printf("%s: ", sqlite3_column_text(stmt, 0));
+        printf("%s\n", sqlite3_column_text(stmt, 1));
+        
+    } 
 
-  sqlite3_prepare_v2(db,"select * from users",-1,&stmt,NULL);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
 
-  printf("Results: \n");
-
-  while (sqlite3_step(stmt) != SQLITE_DONE) {
-		int i;
-		int num_cols = sqlite3_column_count(stmt);
-		
-		for (i = 0; i < num_cols; i++)
-		{
-			switch (sqlite3_column_type(stmt, i))
-			{
-			case (SQLITE3_TEXT):
-				printf("%s, ", sqlite3_column_text(stmt, i));
-				break;
-			case (SQLITE_INTEGER):
-				printf("%d, ", sqlite3_column_int(stmt, i));
-				break;
-			case (SQLITE_FLOAT):
-				printf("%g, ", sqlite3_column_double(stmt, i));
-				break;
-			default:
-				break;
-			}
-		}
-		printf("\n");
-
-	}
-
-  sqlite3_finalize(stmt);
-  sqlite3_close(db);
+  }
+  
 
 
 		      
