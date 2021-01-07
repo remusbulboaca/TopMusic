@@ -134,6 +134,9 @@ void raspunde(void *arg)
   //intializare db
   sqlite3 *db;
   sqlite3_stmt *stmt;
+  char register_username[50];
+  char register_password[50];
+  char big_buff_register[200];
   /*Validam comanda primita de la client*/
   /* Este login/register/quit? */
   while (1) 
@@ -148,61 +151,10 @@ void raspunde(void *arg)
 			}
 	
 	  printf ("[Thread %d]Mesajul a fost receptionat...%s\n",tdL.idThread, data);
-    int errorCode;
-    /* Este o comanda valida? */
-      if (strcmp(data,"login\n")==0 || strcmp(data,"register\n")==0 || strcmp(data,"quit\n")==0)
-        {
-          printf ("[Thread %d] Comanda valida: %s \n",tdL.idThread,data);
-          /* Trimitem un raspuns --> client validand comanda */
-          errorCode = 0;
-          if(write(tdL.cl,&errorCode,sizeof(errorCode))<=0){
-            printf("[Thread %d] ",tdL.idThread);
-		        perror ("[Thread]Eroare la write() catre client.\n");
-          }else{
-            printf ("[Thread %d]Am validat comanda introdusa de catre client!.\n",tdL.idThread);
-          }
-          break;
-        }else{
-          printf ("[Thread %d] Comanda nevalida! \n",tdL.idThread);
-          errorCode = 1;
-          if (write(tdL.cl,&errorCode,sizeof(errorCode))<=0)
-          {
-            printf("[Thread %d] ",tdL.idThread);
-		        perror ("[Thread]Eroare la write() catre client.\n");
-          }else{
-            printf ("[Thread %d]Mesajul a fost trasmis cu succes.\n",tdL.idThread);
-          }
-          
-        }
-  }
-
-  int rc = sqlite3_open("TopMusic.db",&db);
-  if(db == NULL){
-    printf("Failed to open DB! \n");
-  }
-  if(strcmp(data,"login\n")==0){
     
-    
-
+    if(write(tdL.cl,&data,sizeof(data))<=0){
+        printf("[Thread %d] ",tdL.idThread);
+		    perror ("[Thread]Eroare la write() catre client.\n");
+      } 
+    }
   }
-  
-
-
-		      
-		      /*pregatim mesajul de raspuns */
-		      
-  /*        nr++;      
-	printf("[Thread %d]Trimitem mesajul inapoi...%d\n",tdL.idThread, nr);
-	*/
-	      
-		      /* returnam mesajul clientului */
-	/*
-   if (write (tdL.cl, &nr, sizeof(int)) <= 0)
-		{
-		 printf("[Thread %d] ",tdL.idThread);
-		 perror ("[Thread]Eroare la write() catre client.\n");
-		}
-	else
-		printf ("[Thread %d]Mesajul a fost trasmis cu succes.\n",tdL.idThread);	
-  */
-}
