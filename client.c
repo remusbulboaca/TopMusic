@@ -26,8 +26,10 @@ int main(int argc, char *argv[])
       // mesajul trimis
   int nr = 0;
   char buf[50];
-  char cmdin[1024]; // raspunsul dat de server
-  char cmdout[1024]; // comanda trimisa de client
+  char cmdin[8888]; // raspunsul dat de server
+  char cmdout[8888]; // comanda trimisa de client
+    char login_user[50];
+    char login_password[50];
 
   /* exista toate argumentele in linia de comanda? */
   if (argc != 3)
@@ -69,9 +71,44 @@ int main(int argc, char *argv[])
 
     memset(cmdout,0,sizeof(cmdout));
     read(0, cmdout,sizeof(cmdout));
-    //scanf("%d",&nr);
+      cmdout[strlen(cmdout)-1] = 0; //scapam de newline
 
-    printf("[client] Am citit %s\n", cmdout);
+    printf("[client] Ai introdus: %s\n", cmdout);
+      if (strcmp(cmdout,"login")==0) {
+          system("clear");
+          printf("Ai introdus comanda login!\n");
+          printf("Introdu usernameul:\n");
+          printf(">>");
+          memset(login_user,0,sizeof(login_user));
+          scanf("%s",login_user);
+          printf("Introdu parola:\n");
+          printf(">>");
+          memset(login_password,0,sizeof(login_password));
+          scanf("%s",login_password);
+          strcat(cmdout,"##");
+          strcat(cmdout,login_user);
+          strcat(cmdout,"##");
+          strcat(cmdout,login_password);
+          printf("Comanda de trimis: %s \n",cmdout);
+      }
+      
+      if (strcmp(cmdout,"register")==0) {
+          system("clear");
+          printf("REGISTER\n");
+          printf("Introdu un username:\n");
+          printf(">> ");
+          memset(login_user,0,sizeof(login_user));
+          scanf("%s",login_user);
+          printf("Introdu parola:\n");
+          printf(">> ");
+          memset(login_password,0,sizeof(login_password));
+          scanf("%s",login_password);
+          strcat(cmdout,"##");
+          strcat(cmdout,login_user);
+          strcat(cmdout,"##");
+          strcat(cmdout,login_password);
+          printf("Comanda de trimis: %s \n",cmdout);
+      }
     
     /* trimiterea mesajului la server */
     /*TRIMITEM COMANDA CITITA INITIAL LA SERVER*/
@@ -80,7 +117,8 @@ int main(int argc, char *argv[])
       perror("[client]Eroare la write() spre server.\n");
       return errno;
     }
-    /*Asteapm raspunsul si il validam*/
+      
+    /*Asteapm raspunsul si il afisam*/
     memset(cmdin,0,sizeof(cmdin));
     if (read(sd, &cmdin, sizeof(cmdin)) < 0)
     {

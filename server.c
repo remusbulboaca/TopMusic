@@ -35,6 +35,26 @@ typedef struct thData{
 static void *treat(void *); /* functia executata de fiecare thread ce realizeaza comunicarea cu clientii */
 void raspunde(void *);
 
+static int callback (void *str, int argc, char **argv, char **azColName)
+{
+    int i;
+    char* data = (char*) str;
+
+    for (i = 0; i < argc; i++)
+    {
+        strcat (data, azColName[i]);
+        strcat (data, " = ");
+        if (argv[i])
+            strcat (data, argv[i]);
+        else
+            strcat (data, "NULL");
+        strcat (data, "\n");
+    }
+
+    strcat (data, "\n");
+    return 0;
+}
+
 int main ()
 {
   struct sockaddr_in server;	// structura folosita de server
@@ -129,9 +149,20 @@ static void *treat(void * arg)
 
 void raspunde(void *arg)
 {
-  char cmdin[1024]; //comanda primita de la client
-  char cmdout[1024]; // raspunsul trimis clientului
+  char cmdin[8888]; //comanda primita de la client
+  char cmdout[8888]; // raspunsul trimis clientului
+    char logincmd[50];
+    char registercmd[50];
+    char username[50];
+    char password[50];
 	struct thData tdL;
+    int is_user = 0;
+    int is_admin = 0;
+    char sql[8888];
+    char str[8888];
+    char* zErrMsg;
+    
+    
 	tdL= *((struct thData*)arg);
   
   sqlite3 *db;
@@ -150,6 +181,7 @@ void raspunde(void *arg)
   {
     /*   Citim comanda   */
     fflush(stdin);
+      memset(cmdin,0,sizeof(cmdin));
     if (read (tdL.cl, &cmdin,sizeof(cmdin)) <= 0)
 			{
 			  printf("[Thread %d]\n",tdL.idThread);
@@ -158,12 +190,8 @@ void raspunde(void *arg)
 			}
 	
 	  printf ("[Thread %d]Mesajul a fost receptionat...%s\n",tdL.idThread, cmdin);
-    
-      
-      if (strstr(cmdin,"login")==0) {
-          <#statements#>
-      }
-    if(strcmp(cmdin,"quit\n")==0){
+ 
+    if(strcmp(cmdin,"quit")==0){
       memset(cmdout,0,sizeof(cmdout));
       strcpy(cmdout,"Bye...");
       if(write(tdL.cl,&cmdout,sizeof(cmdout))<=0){
@@ -172,14 +200,99 @@ void raspunde(void *arg)
       }
       break;
     }
-
+      
+      if (strstr(cmdin,"login")!=NULL) {
+          char * token = strtok(cmdin,"##");
+          memset(logincmd,0,sizeof(logincmd));
+          memset(username,0,sizeof(username));
+          memset(password,0,sizeof(password));
+          strcpy(logincmd,token);
+          printf("%s\n",logincmd);
+          token = strtok(NULL,"##");
+          strcpy(username,token);
+          printf("%s\n",username);
+          token = strtok(NULL,"##");
+          strcpy(password,token);
+          printf("%s\n",password);
+          memset(sql,0,sizeof(sql));
+          memset(cmdout,0,sizeof(cmdout));
+          sprintf(sql,"SELECT * FROM users WHERE username='%s' AND password='%s';",username,password);
+          
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }
+          else if(strstr(str,username)){
+              sprintf(cmdout,"Bun venit, %s!\n",username);
+              if (strstr(str,"NOT")) {
+                  strcat(cmdout,"Rolul tau: user normal!\n");
+                  is_user = 1;
+              }else{
+                  strcat(cmdout,"Rolul tau: admin.\n");
+                  is_admin = 1;
+              }
+          }
+          else{
+              strcpy(cmdout,"Cont neexistent!\n");
+          }
+          
+      }
+      
+      if (strstr(cmdin,"register")!=NULL) {
+          char * token = strtok(cmdin,"##");
+          memset(registercmd,0,sizeof(registercmd));
+          memset(username,0,sizeof(username));
+          memset(password,0,sizeof(password));
+          strcpy(registercmd,token);
+          token=strtok(NULL,"##");
+          strcpy(username,token);
+          token=strtok(NULL,"##");
+          strcpy(password,token);
+          memset(cmdout,0,sizeof(cmdout));
+          memset(sql,0,sizeof(sql));
+          sprintf(sql,"SELECT * FROM users WHERE username='%s';",username);
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem : %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }
+          
+          else if (strstr(str,username)) {
+              strcpy(cmdout,"Nume deja existent!Incearca altul!\n");
+          }
+          else{
+                  sprintf(sql,"INSERT INTO users (username,password) VALUES ('%s','%s'); ",username,password);
+                  printf("%s\n",sql);
+                  rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+                  if(rc != SQLITE_OK){
+                      sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+                      sqlite3_free(zErrMsg);
+                  }
+                  else
+                  {
+                      sprintf(cmdout,"Succes la register!");
+                  }
+              
+                     
+              }
+                     
+        }
+      
+      if (is_admin==1) {
+          strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\nquit\n");
+      }
+      
+      if (is_user==1) {
+          strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\nquit\n");
+      }
+      
     //trimitem raspunsul clientului...
     if(write(tdL.cl,&cmdout,sizeof(cmdout))<=0){
         printf("[Thread %d] ",tdL.idThread);
 		    perror ("[Thread]Eroare la write() catre client.\n");
       } 
     }
-    
-    sqlite3_finalize(res);
-    sqlite3_close(db);
-  }
+                     }
