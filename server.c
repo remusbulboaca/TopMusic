@@ -161,6 +161,12 @@ void raspunde(void *arg)
     char sql[8888];
     char str[8888];
     char* zErrMsg;
+    /* Variabile reciclabile */
+    char auxvar1[100];
+    char auxvar2[100];
+    char auxvar3[100];
+    char auxvar4[100];
+    char auxvar5[100];
     
     
 	tdL= *((struct thData*)arg);
@@ -282,12 +288,59 @@ void raspunde(void *arg)
         }
       
       if (is_admin==1) {
-          strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\nquit\n");
+          strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\n'detele song_id'-sterge o piesa\nquit\n");
       }
       
       if (is_user==1) {
-          strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\nquit\n");
+          strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'comments id_song'-vezi comentariile unei piese\n'add comentariu'-adauga un comentariu\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\nquit\n");
       }
+      
+      if(strstr(cmdin,"add_song")&&((is_user==1)||(is_admin==1))){
+          char * token = strtok(cmdin,"##");
+          memset(auxvar1,0,sizeof(auxvar1));
+          memset(auxvar2,0,sizeof(auxvar2));
+          memset(auxvar3,0,sizeof(auxvar3));
+          memset(auxvar4,0,sizeof(auxvar4));
+          memset(auxvar5,0,sizeof(auxvar5));
+          strcpy(auxvar1,token); // comanda
+          token = strtok(NULL,"##");
+          strcpy(auxvar2,token); // nume piesa
+          token = strtok(NULL,"##");
+          strcpy(auxvar3,token); //descriere piesa
+          token = strtok(NULL,"##");
+          strcpy(auxvar4,token); // gen
+          token = strtok(NULL,"##");
+          strcpy(auxvar5,token);
+          memset(sql,0,sizeof(sql));
+          memset(cmdout,0,sizeof(cmdout));
+          sprintf(sql,"INSERT INTO songs(name,description,genre,link) VALUES ('%s','%s','%s','%s');",auxvar2,auxvar3,auxvar4,auxvar5);
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          if(rc != SQLITE_OK){
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }
+          else
+          {
+              sprintf(cmdout,"Melodie adaugata cu succes!\n");
+          }
+      }
+     
+      if (strstr(cmdin,"top")&&((is_admin==1)||(is_user==1))) {
+          printf("Afisam topul");
+          memset(cmdout,0,sizeof(cmdout));
+          memset(sql,0,sizeof(sql));
+          sprintf(sql,"SELECT * FROM songs ORDER BY no_votes DESC;");
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem : %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }else{
+              strcpy(cmdout,str);
+          }
+      }
+      
+    
       
     //trimitem raspunsul clientului...
     if(write(tdL.cl,&cmdout,sizeof(cmdout))<=0){
@@ -296,3 +349,16 @@ void raspunde(void *arg)
       } 
     }
                      }
+
+/*
+ TO DO:
+ [x] register
+ [x] login
+ [x] add_song
+ [x] top
+ [] vote
+ [] comentariu
+ []
+ []
+ 
+ */

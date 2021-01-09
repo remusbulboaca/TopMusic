@@ -30,6 +30,12 @@ int main(int argc, char *argv[])
   char cmdout[8888]; // comanda trimisa de client
     char login_user[50];
     char login_password[50];
+    /*Variablie reciclabile*/
+    char auxvar1[100];
+    char auxvar2[100];
+    char auxvar3[100];
+    char auxvar4[100];
+    char auxvar5[100];
 
   /* exista toate argumentele in linia de comanda? */
   if (argc != 3)
@@ -90,6 +96,33 @@ int main(int argc, char *argv[])
           strcat(cmdout,"##");
           strcat(cmdout,login_password);
           printf("Comanda de trimis: %s \n",cmdout);
+      }
+      
+      if (strcmp(cmdout,"add_song")==0) {
+          system("clear");
+          printf("ADAUGA O PIESA:\n");
+          printf("Introdu titlul:\n");
+          printf(">> ");
+          memset(auxvar1,0,sizeof(auxvar1));
+          scanf("%s",auxvar1);
+          printf("Introdu o descriere:\n");
+          printf(">> ");
+          memset(auxvar2,0,sizeof(auxvar2));
+          scanf("%s",auxvar2);
+          printf("Introdu genul muzical:\n>> ");
+          memset(auxvar3,0,sizeof(auxvar3));
+          scanf("%s",auxvar3);
+          printf("Introdu un link:\n>> ");
+          memset(auxvar4,0,sizeof(auxvar4));
+          scanf("%s",auxvar4);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar1);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar2);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar3);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar4);
       }
       
       if (strcmp(cmdout,"register")==0) {
