@@ -89,8 +89,9 @@ int main(int argc, char *argv[])
     }
     printf("[Server] Comanda primita: %s\n", cmdin);
     
-    if(strcmp(cmdin,"Bafta...") == 0){
+    if(strcmp(cmdin,"Bye...") == 0){
       exit(0);
     }
+    
     }
   }

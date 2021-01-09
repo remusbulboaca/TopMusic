@@ -23,6 +23,8 @@
 #define PORT 2908
 
 /* codul de eroare returnat de anumite apeluri */
+
+sqlite3 * db;
 extern int errno;
 
 typedef struct thData{
@@ -131,9 +133,19 @@ void raspunde(void *arg)
   char cmdout[1024]; // raspunsul trimis clientului
 	struct thData tdL;
 	tdL= *((struct thData*)arg);
-  //intializare db
-  /*Validam comanda primita de la client*/
-  /* Este login/register/quit? */
+  
+  sqlite3 *db;
+  sqlite3_stmt *res;
+    
+    /*Initializare DB*/
+  int rc = sqlite3_open("TopMusic.db", &db);
+    
+  if (rc != SQLITE_OK) {
+      fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+      sqlite3_close(db);
+    }
+  
+  
   while (1) 
   {
     /*   Citim comanda   */
@@ -146,10 +158,14 @@ void raspunde(void *arg)
 			}
 	
 	  printf ("[Thread %d]Mesajul a fost receptionat...%s\n",tdL.idThread, cmdin);
-
+    
+      
+      if (strstr(cmdin,"login")==0) {
+          <#statements#>
+      }
     if(strcmp(cmdin,"quit\n")==0){
       memset(cmdout,0,sizeof(cmdout));
-      strcpy(cmdout,"Bafta...");
+      strcpy(cmdout,"Bye...");
       if(write(tdL.cl,&cmdout,sizeof(cmdout))<=0){
         printf("[Thread %d] ",tdL.idThread);
 		    perror ("[Thread]Eroare la write() catre client.\n");
@@ -163,4 +179,7 @@ void raspunde(void *arg)
 		    perror ("[Thread]Eroare la write() catre client.\n");
       } 
     }
+    
+    sqlite3_finalize(res);
+    sqlite3_close(db);
   }
