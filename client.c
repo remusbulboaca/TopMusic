@@ -26,13 +26,8 @@ int main(int argc, char *argv[])
       // mesajul trimis
   int nr = 0;
   char buf[50];
-  char comanda[50] = "";
-  char returned[50] = "";
-  char login_username[50];
-  char login_password[50];
-  char reg_username[50];
-  char reg_password[50];
-  char big_buff_register[200];
+  char cmdin[1024]; // raspunsul dat de server
+  char cmdout[1024]; // comanda trimisa de client
 
   /* exista toate argumentele in linia de comanda? */
   if (argc != 3)
@@ -72,27 +67,30 @@ int main(int argc, char *argv[])
     printf("[client]Introduceti o comanda: ");
     fflush(stdout);
 
-    memset(comanda,0,sizeof(comanda));
-    read(0, comanda, sizeof(comanda));
+    memset(cmdout,0,sizeof(cmdout));
+    read(0, cmdout,sizeof(cmdout));
     //scanf("%d",&nr);
 
-    printf("[client] Am citit %s\n", comanda);
-
+    printf("[client] Am citit %s\n", cmdout);
+    
     /* trimiterea mesajului la server */
     /*TRIMITEM COMANDA CITITA INITIAL LA SERVER*/
-    if (write(sd, &comanda, sizeof(comanda)) <= 0)
+    if (write(sd, &cmdout, sizeof(cmdout)) <= 0)
     {
       perror("[client]Eroare la write() spre server.\n");
       return errno;
     }
     /*Asteapm raspunsul si il validam*/
-    memset(returned,0,sizeof(returned));
-    if (read(sd, &returned, sizeof(returned)) < 0)
+    memset(cmdin,0,sizeof(cmdin));
+    if (read(sd, &cmdin, sizeof(cmdin)) < 0)
     {
       perror("[client]Eroare la read() de la server.\n");
       return errno;
     }
-    printf("[Server] Comanda primita: %s\n", returned);
+    printf("[Server] Comanda primita: %s\n", cmdin);
     
+    if(strcmp(cmdin,"Bafta...") == 0){
+      exit(0);
+    }
     }
   }

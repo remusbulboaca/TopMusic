@@ -127,32 +127,38 @@ static void *treat(void * arg)
 
 void raspunde(void *arg)
 {
-        int nr, i=0;
-        char data[50];
+  char cmdin[1024]; //comanda primita de la client
+  char cmdout[1024]; // raspunsul trimis clientului
 	struct thData tdL;
 	tdL= *((struct thData*)arg);
   //intializare db
-  sqlite3 *db;
-  sqlite3_stmt *stmt;
-  char register_username[50];
-  char register_password[50];
-  char big_buff_register[200];
   /*Validam comanda primita de la client*/
   /* Este login/register/quit? */
   while (1) 
   {
     /*   Citim comanda   */
     fflush(stdin);
-    if (read (tdL.cl, &data,sizeof(data)) <= 0)
+    if (read (tdL.cl, &cmdin,sizeof(cmdin)) <= 0)
 			{
 			  printf("[Thread %d]\n",tdL.idThread);
 			  perror ("Eroare la read() de la client.\n");
 			
 			}
 	
-	  printf ("[Thread %d]Mesajul a fost receptionat...%s\n",tdL.idThread, data);
-    
-    if(write(tdL.cl,&data,sizeof(data))<=0){
+	  printf ("[Thread %d]Mesajul a fost receptionat...%s\n",tdL.idThread, cmdin);
+
+    if(strcmp(cmdin,"quit\n")==0){
+      memset(cmdout,0,sizeof(cmdout));
+      strcpy(cmdout,"Bafta...");
+      if(write(tdL.cl,&cmdout,sizeof(cmdout))<=0){
+        printf("[Thread %d] ",tdL.idThread);
+		    perror ("[Thread]Eroare la write() catre client.\n");
+      }
+      break;
+    }
+
+    //trimitem raspunsul clientului...
+    if(write(tdL.cl,&cmdout,sizeof(cmdout))<=0){
         printf("[Thread %d] ",tdL.idThread);
 		    perror ("[Thread]Eroare la write() catre client.\n");
       } 
