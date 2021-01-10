@@ -76,9 +76,9 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
     memset(cmdout,0,sizeof(cmdout));
-    read(0, cmdout,sizeof(cmdout));
-      cmdout[strlen(cmdout)-1] = 0; //scapam de newline
-
+      scanf("%s",cmdout);
+      
+    
     printf("[client] Ai introdus: %s\n", cmdout);
       if (strcmp(cmdout,"login")==0) {
           system("clear");
@@ -141,6 +141,31 @@ int main(int argc, char *argv[])
           strcat(cmdout,"##");
           strcat(cmdout,login_password);
           printf("Comanda de trimis: %s \n",cmdout);
+      }
+    
+     
+      if (strcmp(cmdout,"topcat")==0) {
+            system("clear");
+            printf("Introdu categoria dorita:\n");
+            printf(">> ");
+            memset(auxvar1,0,sizeof(auxvar1));
+            scanf("%s",auxvar1);
+            strcat(cmdout,"##");
+            strcat(cmdout,auxvar1);
+      }
+      
+      if (strcmp(cmdout,"vote")==0) {
+          system("clear");
+          printf("Introdu id-ul piesei pe care vrei sa o votezi\n");
+          printf(">> ");
+          memset(auxvar1,0,sizeof(auxvar1));
+          scanf("%s",auxvar1);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar1);
+      }
+      
+      if (strcmp(cmdout,"top")==0) {
+          system("clear");
       }
     
     /* trimiterea mesajului la server */

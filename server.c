@@ -235,9 +235,11 @@ void raspunde(void *arg)
               if (strstr(str,"NOT")) {
                   strcat(cmdout,"Rolul tau: user normal!\n");
                   is_user = 1;
+                  strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'comments id_song'-vezi comentariile unei piese\n'add comentariu'-adauga un comentariu\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\nquit\n");
               }else{
                   strcat(cmdout,"Rolul tau: admin.\n");
                   is_admin = 1;
+                  strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\n'detele song_id'-sterge o piesa\nquit\n");
               }
           }
           else{
@@ -287,13 +289,6 @@ void raspunde(void *arg)
                      
         }
       
-      if (is_admin==1) {
-          strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\n'detele song_id'-sterge o piesa\nquit\n");
-      }
-      
-      if (is_user==1) {
-          strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'comments id_song'-vezi comentariile unei piese\n'add comentariu'-adauga un comentariu\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\nquit\n");
-      }
       
       if(strstr(cmdin,"add_song")&&((is_user==1)||(is_admin==1))){
           char * token = strtok(cmdin,"##");
@@ -329,6 +324,7 @@ void raspunde(void *arg)
           printf("Afisam topul");
           memset(cmdout,0,sizeof(cmdout));
           memset(sql,0,sizeof(sql));
+          memset(str,0,sizeof(str));
           sprintf(sql,"SELECT * FROM songs ORDER BY no_votes DESC;");
           rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
           
@@ -336,7 +332,68 @@ void raspunde(void *arg)
               sprintf(cmdout,"SQL problem : %s\n",zErrMsg);
               sqlite3_free(zErrMsg);
           }else{
-              strcpy(cmdout,str);
+              memset(cmdout,0,sizeof(cmdout));
+              sprintf(cmdout,"\nTopul melodiilor in functie de voturi\n%s",str);
+          }
+      }
+      
+      if (strstr(cmdin,"topcat")&&((is_admin==1)||(is_user==1) )) {
+          memset(cmdout,0,sizeof(cmdout));
+          memset(sql,0,sizeof(sql));
+          memset(str,0,sizeof(str));
+          char * token = strtok(cmdin,"##");
+          memset(auxvar1,0,sizeof(auxvar1));
+          memset(auxvar2,0,sizeof(auxvar2));
+          strcpy(auxvar1,token);
+          token = strtok(NULL,"##");
+          strcpy(auxvar2,token);
+          
+          sprintf(sql,"SELECT * FROM songs WHERE genre='%s' ORDER BY no_votes DESC;",auxvar2);
+          rc=sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }else{
+              memset(cmdout,0,sizeof(cmdout));
+              sprintf(cmdout,"Topul pieselor din categoria %s:\n%s",auxvar2,str);
+          }
+          
+      }
+      
+      if (strstr(cmdin,"vote")&&((is_user==1)||(is_admin))) {
+          memset(cmdout,0,sizeof(cmdout));
+          memset(sql,0,sizeof(sql));
+          memset(str,0,sizeof(str));
+          char * token = strtok(cmdin,"##");
+          memset(auxvar1,0,sizeof(auxvar1));
+          strcpy(auxvar1,token);
+          memset(auxvar2,0,sizeof(auxvar2));
+          token = strtok(NULL,"##");
+          strcpy(auxvar2,token); // id piesa
+          sprintf(sql,"SELECT id FROM users where username='%s';",username);
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          
+          if(rc!=SQLITE_OK){
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }else{
+              memset(auxvar3,0,sizeof(auxvar3));
+              strcpy(auxvar3,str); // id user
+              printf("\nUserul cu %s a votat piesa cu id %s\n",auxvar3,auxvar2);
+              strcpy(cmdout,auxvar3);
+              memset(sql,0,sizeof(sql));
+              memset(str,0,sizeof(str));
+              sprintf(sql,"UPDATE songs SET no_votes = no_votes + 1 WHERE id=%s;",auxvar2);
+              rc=sqlite3_exec(db,sql,callback,str,&zErrMsg);
+              if (rc!=SQLITE_OK) {
+                  sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+                  sqlite3_free(zErrMsg);
+              }else{
+                  memset(cmdout,0,sizeof(cmdout));
+                  strcpy(cmdout,"Ai votat cu succes piesa!\n");
+              }
+              
           }
       }
       
@@ -356,6 +413,7 @@ void raspunde(void *arg)
  [x] login
  [x] add_song
  [x] top
+ [x] top by genre
  [] vote
  [] comentariu
  []
