@@ -154,6 +154,49 @@ int main(int argc, char *argv[])
             strcat(cmdout,auxvar1);
       }
       
+      if (strcmp(cmdout,"add_comment")==0) {
+          system("clear");
+          printf("Precizeaza id-ul piesei:\n");
+          printf(">> ");
+          memset(auxvar1,0,sizeof(auxvar1));
+          scanf("%s",auxvar1);
+          printf("Scrie aici comentariul:\n");
+          printf(">> ");
+          memset(auxvar2,0,sizeof(auxvar2));
+          scanf("%s",auxvar2);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar1);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar2);
+      }
+      
+      if (strcmp(cmdout,"unrestrict")==0) {
+          system("clear");
+          printf("Introdu id-ul utilizatorului: \n>> ");
+          memset(auxvar1,0,sizeof(auxvar1));
+          scanf("%s",auxvar1);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar1);
+      }
+      
+      if (strcmp(cmdout,"restrict")==0) {
+          system("clear");
+          printf("Introdu id-ul utilizatorului: \n>> ");
+          memset(auxvar1,0,sizeof(auxvar1));
+          scanf("%s",auxvar1);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar1);
+      }
+      
+      if (strcmp(cmdout,"delete_song")==0) {
+          system("clear");
+          printf("Introdu id-ul piesei: \n>> ");
+          memset(auxvar1,0,sizeof(auxvar1));
+          scanf("%s",auxvar1);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar1);
+      }
+      
       if (strcmp(cmdout,"vote")==0) {
           system("clear");
           printf("Introdu id-ul piesei pe care vrei sa o votezi\n");

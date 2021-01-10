@@ -158,6 +158,7 @@ void raspunde(void *arg)
 	struct thData tdL;
     int is_user = 0;
     int is_admin = 0;
+    int is_restricted=0;
     char sql[8888];
     char str[8888];
     char* zErrMsg;
@@ -187,7 +188,8 @@ void raspunde(void *arg)
   {
     /*   Citim comanda   */
     fflush(stdin);
-      memset(cmdin,0,sizeof(cmdin));
+    memset(cmdin,0,sizeof(cmdin));
+    memset(cmdout,0,sizeof(cmdout));
     if (read (tdL.cl, &cmdin,sizeof(cmdin)) <= 0)
 			{
 			  printf("[Thread %d]\n",tdL.idThread);
@@ -232,6 +234,11 @@ void raspunde(void *arg)
           }
           else if(strstr(str,username)){
               sprintf(cmdout,"Bun venit, %s!\n",username);
+              if (strstr(str,"unrestricted")) {
+                  is_restricted=0;
+              }else{
+                  is_restricted=1;
+              }
               if (strstr(str,"NOT")) {
                   strcat(cmdout,"Rolul tau: user normal!\n");
                   is_user = 1;
@@ -397,7 +404,79 @@ void raspunde(void *arg)
           }
       }
       
-    
+      if (strstr(cmdin,"unrestrict")&&(is_admin==1)) {
+          memset(sql,0,sizeof(sql));
+          memset(str,0,sizeof(str));
+          char * token = strtok(cmdin,"##");
+          memset(auxvar1,0,sizeof(auxvar1));
+          strcpy(auxvar1,token); // comanda restrict
+          memset(auxvar2,0,sizeof(auxvar2));
+          token = strtok(NULL,"##");
+          strcpy(auxvar2,token); //id user
+          sprintf(sql,"UPDATE users SET restrict = 'unrestricted' WHERE id=%s;",auxvar2);
+          printf("\n%s\n",sql);
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }else{
+              memset(cmdout,0,sizeof(cmdout));
+              strcpy(cmdout,"Ai revocat restrictia utilizatorului!\n");
+          }
+          
+      }
+      
+      if (strstr(cmdin,"restrict")&&(is_admin==1)&&(strstr(cmdin,"unrestrict")==NULL)) {
+          memset(sql,0,sizeof(sql));
+          memset(str,0,sizeof(str));
+          char * token = strtok(cmdin,"##");
+          memset(auxvar1,0,sizeof(auxvar1));
+          strcpy(auxvar1,token); // comanda restrict
+          memset(auxvar2,0,sizeof(auxvar2));
+          token = strtok(NULL,"##");
+          strcpy(auxvar2,token); //id user
+          sprintf(sql,"UPDATE users SET restrict = 'restricted' WHERE id=%s;",auxvar2);
+          printf("\n%s\n",sql);
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }else{
+              memset(cmdout,0,sizeof(cmdout));
+              strcpy(cmdout,"Ai restrictionat utilizatorul cu succes!\n");
+          }
+          
+      }
+      
+      if (strstr(cmdin,"add_coment")&&((is_user==1)||(is_admin==1))) {
+          printf("%s",cmdin);
+      }
+      
+      if (strstr(cmdin,"delete_song")&&(is_admin==1)) {
+          memset(sql,0,sizeof(sql));
+          memset(str,0,sizeof(str));
+          char * token = strtok(cmdin,"##");
+          memset(auxvar1,0,sizeof(auxvar1));
+          strcpy(auxvar1,token); // comanda delete
+          memset(auxvar2,0,sizeof(auxvar2));
+          token = strtok(NULL,"##");
+          strcpy(auxvar2,token); //id piesa
+          sprintf(sql,"DELETE FROM songs where id=%s;",auxvar2);
+          printf("\n%s\n",sql);
+          rc=sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }else{
+              memset(cmdout,0,sizeof(cmdout));
+              strcpy(cmdout,"Ai sters piesa cu succes!\n");
+          }
+      }
+      
+      if(cmdout[0]==0){
+          memset(cmdout,0,sizeof(cmdout));
+          strcpy(cmdout,"Nu ai dreptul sa folosesti aceasta comanda!\n");
+      }
       
     //trimitem raspunsul clientului...
     if(write(tdL.cl,&cmdout,sizeof(cmdout))<=0){
@@ -414,9 +493,13 @@ void raspunde(void *arg)
  [x] add_song
  [x] top
  [x] top by genre
- [] vote
+ [x] vote
  [] comentariu
- []
- []
+ ++ ADMIN ZONE ++
+ [] add_admin
+ [] remove_admin
+ [x] delete_song
+ [x] restrict_user
+ [x] derestrict user
  
  */
