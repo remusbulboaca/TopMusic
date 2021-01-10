@@ -197,6 +197,24 @@ int main(int argc, char *argv[])
           strcat(cmdout,auxvar1);
       }
       
+      if (strcmp(cmdout,"add_admin")==0) {
+          system("clear");
+          printf("Introdu id-ul utilizatorului: \n>> ");
+          memset(auxvar1,0,sizeof(auxvar1));
+          scanf("%s",auxvar1);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar1);
+      }
+      
+      if (strcmp(cmdout,"remove_admin")==0) {
+          system("clear");
+          printf("Introdu id-ul utilizatorului: \n>> ");
+          memset(auxvar1,0,sizeof(auxvar1));
+          scanf("%s",auxvar1);
+          strcat(cmdout,"##");
+          strcat(cmdout,auxvar1);
+      }
+      
       if (strcmp(cmdout,"vote")==0) {
           system("clear");
           printf("Introdu id-ul piesei pe care vrei sa o votezi\n");

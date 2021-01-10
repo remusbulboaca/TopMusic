@@ -426,7 +426,7 @@ void raspunde(void *arg)
           
       }
       
-      if (strstr(cmdin,"restrict")&&(is_admin==1)&&(strstr(cmdin,"unrestrict")==NULL)) {
+      if(strstr(cmdin,"restrict")&&(is_admin==1)&&(strstr(cmdin,"unrestrict")==NULL)) {
           memset(sql,0,sizeof(sql));
           memset(str,0,sizeof(str));
           char * token = strtok(cmdin,"##");
@@ -444,6 +444,50 @@ void raspunde(void *arg)
           }else{
               memset(cmdout,0,sizeof(cmdout));
               strcpy(cmdout,"Ai restrictionat utilizatorul cu succes!\n");
+          }
+          
+      }
+      
+      if (strstr(cmdin,"add_admin")&&(is_admin==1)) {
+          memset(sql,0,sizeof(sql));
+          memset(str,0,sizeof(str));
+          char * token = strtok(cmdin,"##");
+          memset(auxvar1,0,sizeof(auxvar1));
+          strcpy(auxvar1,token); // comanda add_admin
+          memset(auxvar2,0,sizeof(auxvar2));
+          token = strtok(NULL,"##");
+          strcpy(auxvar2,token); //id user
+          sprintf(sql,"UPDATE users SET is_admin = 'admin' WHERE id=%s;",auxvar2);
+          printf("\n%s\n",sql);
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }else{
+              memset(cmdout,0,sizeof(cmdout));
+              strcpy(cmdout,"Ai adaugat un nou admin cu succes!\n");
+          }
+          
+      }
+      
+      if (strstr(cmdin,"remove_admin")&&(is_admin==1)) {
+          memset(sql,0,sizeof(sql));
+          memset(str,0,sizeof(str));
+          char * token = strtok(cmdin,"##");
+          memset(auxvar1,0,sizeof(auxvar1));
+          strcpy(auxvar1,token); // comanda add_admin
+          memset(auxvar2,0,sizeof(auxvar2));
+          token = strtok(NULL,"##");
+          strcpy(auxvar2,token); //id user
+          sprintf(sql,"UPDATE users SET is_admin = 'NOT' WHERE id=%s;",auxvar2);
+          printf("\n%s\n",sql);
+          rc = sqlite3_exec(db,sql,callback,str,&zErrMsg);
+          if (rc!=SQLITE_OK) {
+              sprintf(cmdout,"SQL problem: %s\n",zErrMsg);
+              sqlite3_free(zErrMsg);
+          }else{
+              memset(cmdout,0,sizeof(cmdout));
+              strcpy(cmdout,"Ai STERS un admin cu succes!\n");
           }
           
       }
@@ -496,8 +540,8 @@ void raspunde(void *arg)
  [x] vote
  [] comentariu
  ++ ADMIN ZONE ++
- [] add_admin
- [] remove_admin
+ [x] add_admin
+ [x] remove_admin
  [x] delete_song
  [x] restrict_user
  [x] derestrict user
