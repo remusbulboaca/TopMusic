@@ -68,20 +68,25 @@ int main(int argc, char *argv[])
     perror("[client]Eroare la connect().\n");
     return errno;
   }
+    
+    printf("[TOP MUSIC]\n");
+    printf("Comenzile disponibile sunt:\n");
+    printf("login - pentru a te loga\n");
+    printf("register - pentru a te inregistra\n");
+    printf("quit - pentru a iesi\n");
   
   while (1)
   {
     /* citirea mesajului */
-    printf("[client]Introduceti o comanda: ");
+    printf("Introduceti o comanda:\n>> ");
     fflush(stdout);
 
     memset(cmdout,0,sizeof(cmdout));
-      scanf("%s",cmdout);
+    scanf("%s",cmdout);
       
-    
-    printf("[client] Ai introdus: %s\n", cmdout);
       if (strcmp(cmdout,"login")==0) {
           system("clear");
+          printf("LOGIN\n");
           printf("Ai introdus comanda login!\n");
           printf("Introdu usernameul:\n");
           printf(">>");
@@ -95,7 +100,7 @@ int main(int argc, char *argv[])
           strcat(cmdout,login_user);
           strcat(cmdout,"##");
           strcat(cmdout,login_password);
-          printf("Comanda de trimis: %s \n",cmdout);
+          printf("Loading...");
       }
       
       if (strcmp(cmdout,"add_song")==0) {
@@ -225,6 +230,8 @@ int main(int argc, char *argv[])
           strcat(cmdout,auxvar1);
       }
       
+      
+      
       if (strcmp(cmdout,"top")==0) {
           system("clear");
       }
@@ -244,7 +251,7 @@ int main(int argc, char *argv[])
       perror("[client]Eroare la read() de la server.\n");
       return errno;
     }
-    printf("[Server] Comanda primita: %s\n", cmdin);
+    printf("%s\n", cmdin);
     
     if(strcmp(cmdin,"Bye...") == 0){
       exit(0);
