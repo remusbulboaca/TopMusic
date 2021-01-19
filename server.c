@@ -209,6 +209,20 @@ void raspunde(void *arg)
       break;
     }
       
+      if (strcmp(cmdin,"help")==0) {
+          if ((is_user==0) && (is_admin==0)) {
+              strcpy(cmdout,"[TOP MUSIC] \nComenzile disponibile sunt:\nlogin - pentru a te loga\nregister - pentru a te inregistra\nquit - pentru a iesi\n");
+          }
+          
+          if (is_user) {
+              strcpy(cmdout,"\n Rolut tau este user normal\nadd_song - adauga o piesa\nvote - voteaza o piesa\ntop - top general piese\ntopcat - vezi topul pieselor dintr-o categorie\nadd_comment - adauga un comentariuzz");
+          }
+          
+          if(is_admin==1){
+              strcpy(cmdout,"\n Rolut tau este admin\nadd_song - adauga o piesa\nvote - voteaza o piesa\ntop - top general piese\ntopcat - vezi topul pieselor dintr-o categorie\n----ADMIN----\nadd_admin - Adauga un admin\nremove_admin - Sterge un admin\ndelete_song - sterge o piesa\nrestrict - restrictioneaza un user\nunrestrict - scoate restrictia unui user\n");
+          }
+      }
+      
       if (strstr(cmdin,"login")!=NULL) {
           char * token = strtok(cmdin,"##");
           memset(logincmd,0,sizeof(logincmd));
@@ -242,11 +256,11 @@ void raspunde(void *arg)
               if (strstr(str,"NOT")) {
                   strcat(cmdout,"Rolul tau: user normal!\n");
                   is_user = 1;
-                  strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'comments id_song'-vezi comentariile unei piese\n'add comentariu'-adauga un comentariu\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\nquit\n");
+                  strcat(cmdout,"\n Rolut tau este user normal\nadd_song - adauga o piesa\nvote - voteaza o piesa\ntop - top general piese\ntopcat - vezi topul pieselor dintr-o categorie\nadd_comment - adauga un comentariuzz");
               }else{
                   strcat(cmdout,"Rolul tau: admin.\n");
                   is_admin = 1;
-                  strcat(cmdout,"\nComenzi disponibilie:\n'add_music title description genre' - adauga piesa\n'vote idpiesa'-voteaza piesa\n'top' - vizualizare top muzical\n'topcat category' - vizualizare top in functie de categorie\n'detele song_id'-sterge o piesa\nquit\n");
+                  strcat(cmdout,"\n Rolut tau este admin\nadd_song - adauga o piesa\nvote - voteaza o piesa\ntop - top general piese\ntopcat - vezi topul pieselor dintr-o categorie\n----ADMIN----\nadd_admin - Adauga un admin\nremove_admin - Sterge un admin\ndelete_song - sterge o piesa\nrestrict - restrictioneaza un user\nunrestrict - scoate restrictia unui user\n");
               }
           }
           else{
@@ -368,7 +382,7 @@ void raspunde(void *arg)
           
       }
       
-      if (strstr(cmdin,"vote")&&((is_user==1)||(is_admin))) {
+      if (strstr(cmdin,"vote")&&((is_user==1)||(is_admin))&&(is_restricted==0)) {
           memset(cmdout,0,sizeof(cmdout));
           memset(sql,0,sizeof(sql));
           memset(str,0,sizeof(str));

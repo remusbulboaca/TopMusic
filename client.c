@@ -78,11 +78,15 @@ int main(int argc, char *argv[])
   while (1)
   {
     /* citirea mesajului */
-    printf("Introduceti o comanda:\n>> ");
+    printf("Introduceti o comanda:\nhelp-vezi comenzi disponibile\n>> ");
     fflush(stdout);
 
     memset(cmdout,0,sizeof(cmdout));
     scanf("%s",cmdout);
+      
+      if (strcmp(cmdout,"help")) {
+          system("clear");
+      }
       
       if (strcmp(cmdout,"login")==0) {
           system("clear");
